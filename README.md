@@ -1,4 +1,4 @@
-# ConcurrentLETREC — EOPL extended environments + concurrent lambda calculus
+# Concurrent Lambda Calculus
 
 A standalone Haskell/Cabal teaching project that combines **EOPL LETREC's
 extended-environment implementation** with the concurrent lambda calculus,
@@ -59,34 +59,6 @@ src/ConcurrentLETREC/
 app/Main.hs     run examples
 test/Spec.hs    interpreter/VM comparison and scoping tests
 ```
-
-## Selected definitions
-
-```haskell
--- Source semantics:
-eval (LetRec f x fun body) env =
-  eval body (ExtendEnvRec f x fun env)
-
-applyEnv env@(ExtendEnvRec f x fun saved) y
-  | f == y    = pure (Clo x fun env)
-  | otherwise = applyEnv saved y
-
--- Compiler:
-comp (LetRec f x fun body) next =
-  LETREC f x (comp fun RET) (comp body RET) next
-
--- VM:
-exec (LETREC f x fun body next) (stack,env) =
-  exec body (CLO next env : stack, ExtendEnvRecM f x fun env)
-
-exec RET (VAL v : CLO next savedEnv : stack, _) =
-  exec next (VAL v : stack, savedEnv)
-```
-
-The `LETREC` execution frame must remain **under** the body result, and the
-body must compile with `RET` as its continuation. This is how the original
-environment is restored without a new instruction. Regular `APP` shares the
-same frame and return mechanism.
 
 ## What remains unverified
 
