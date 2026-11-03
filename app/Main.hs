@@ -2,11 +2,11 @@ module Main where
 
 import System.Environment (getArgs)
 import Text.Read (readMaybe)
-import ConcurrentLETREC.Syntax
-import ConcurrentLETREC.Eval
-import ConcurrentLETREC.Machine
-import ConcurrentLETREC.Runner
-import ConcurrentLETREC.Examples
+import Syntax
+import Eval
+import Machine
+import Runner
+import Examples
 
 main :: IO ()
 main = do

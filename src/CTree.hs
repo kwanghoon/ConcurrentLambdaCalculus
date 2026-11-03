@@ -4,7 +4,7 @@
 
 -- | Executable approximation of Sections 2, 4, and 7.
 -- Haskell laziness does NOT statically enforce the paper's guardedness.
-module ConcurrentLETREC.CTree
+module CTree
   ( CTree(..), CTreeC(..), Concurrent(..), NoEff
   , zeroC, choiceC, laterC, effectC, lower
   , parallel, parR, parRC, interp, interpSt, interpStC

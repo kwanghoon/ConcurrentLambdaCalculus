@@ -1,9 +1,9 @@
-module ConcurrentLETREC.Eval
+module Eval
   ( Value(..), Env(..), applyEnv, eval, evaluate ) where
 
-import ConcurrentLETREC.Syntax
-import ConcurrentLETREC.CTree
-import ConcurrentLETREC.Channel
+import Syntax
+import CTree
+import Channel
 
 -- | EOPL's extended environment. A recursive binding stores the source
 -- function body, not a cyclic Haskell closure. Looking up f constructs a

@@ -1,8 +1,8 @@
-module ConcurrentLETREC.Examples
+module Examples
   ( examples, increment, choiceRendezvous, sumTo, stuckType, forkOnly
   ) where
 
-import ConcurrentLETREC.Syntax
+import Syntax
 
 -- Child: receive c, send (n+1). Parent: send 41, receive 42.
 increment :: Expr

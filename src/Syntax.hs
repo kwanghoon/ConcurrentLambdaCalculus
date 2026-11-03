@@ -1,6 +1,6 @@
 -- | A single EOPL-style abstract syntax tree with named identifiers.
 -- No surface/core split, lexical-address conversion, or fixpoint desugaring.
-module ConcurrentLETREC.Syntax
+module Syntax
   ( Identifier, Expr(..), checkClosed ) where
 
 type Identifier = String

@@ -8,13 +8,13 @@ synopsis: Concurrent lambda calculus extending EOPL LETREC, with calculated comp
 library
   hs-source-dirs: src
   exposed-modules:
-      ConcurrentLETREC.Syntax
-      ConcurrentLETREC.CTree
-      ConcurrentLETREC.Channel
-      ConcurrentLETREC.Eval
-      ConcurrentLETREC.Machine
-      ConcurrentLETREC.Runner
-      ConcurrentLETREC.Examples
+      Syntax
+      CTree
+      Channel
+      Eval
+      Machine
+      Runner
+      Examples
   build-depends: base >=4.14 && <5
   default-language: Haskell2010
   ghc-options: -Wall

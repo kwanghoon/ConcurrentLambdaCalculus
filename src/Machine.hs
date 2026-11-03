@@ -1,11 +1,11 @@
-module ConcurrentLETREC.Machine
+module Machine
   ( Code(..), ValueM(..), EnvM(..), Elem(..), Stack, Conf
   , compile, comp, applyEnvM, exec, execute, conv, convEnv, valueOf ) where
 
-import ConcurrentLETREC.Syntax
-import ConcurrentLETREC.Eval (Value(..), Env(..))
-import ConcurrentLETREC.CTree
-import ConcurrentLETREC.Channel
+import Syntax
+import Eval (Value(..), Env(..))
+import CTree
+import Channel
 
 -- | Named-variable variant of Fig. 4; LETREC is the sole new instruction
 -- for recursion. The existing return frame and RET restore lexical scope.

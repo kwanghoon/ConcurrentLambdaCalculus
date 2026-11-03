@@ -1,10 +1,10 @@
 module Main where
 
 import Control.Monad (unless)
-import ConcurrentLETREC.Syntax
-import ConcurrentLETREC.Runner
-import ConcurrentLETREC.Machine (Code(..), comp)
-import ConcurrentLETREC.Examples
+import Syntax
+import Runner
+import Machine (Code(..), comp)
+import Examples
 
 assert :: String -> Bool -> IO ()
 assert name ok = do

@@ -1,8 +1,8 @@
 {-# LANGUAGE GADTs #-}
-module ConcurrentLETREC.Channel
+module Channel
   ( Chan, ChanEff(..), send, receive, newChan, handleChannel ) where
 
-import ConcurrentLETREC.CTree
+import CTree
 
 type Chan = Int
 

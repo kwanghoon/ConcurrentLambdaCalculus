@@ -48,7 +48,7 @@ branches in a bounded fashion; it is **not** a bisimulation checker.
 ## Source structure
 
 ```
-src/ConcurrentLETREC/
+src/
   Syntax.hs     one identifier-based AST and optional scope checker
   CTree.hs      GADT choice trees, codensity, concurrency, state handler
   Channel.hs    SendInt/ReceiveInt/NewChan and rendezvous

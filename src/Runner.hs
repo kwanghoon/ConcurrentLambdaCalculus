@@ -1,14 +1,14 @@
 {-# LANGUAGE EmptyCase #-}
 {-# LANGUAGE GADTs #-}
-module ConcurrentLETREC.Runner
+module Runner
   ( Outcome(..), explore, sourceOutcomes, machineOutcomes
   , sourceInts, machineInts, compareInts ) where
 
 import Data.List (nub)
-import ConcurrentLETREC.CTree
-import ConcurrentLETREC.Syntax
-import ConcurrentLETREC.Eval
-import ConcurrentLETREC.Machine
+import CTree
+import Syntax
+import Eval
+import Machine
 
 -- | Bounded exploration, not bisimilarity or a complete model checker.
 -- τ transitions consume fuel; choice nodes do not.
