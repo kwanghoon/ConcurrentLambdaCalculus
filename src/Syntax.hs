@@ -1,11 +1,13 @@
 -- | A single EOPL-style abstract syntax tree with named identifiers.
 -- No surface/core split, lexical-address conversion, or fixpoint desugaring.
 module Syntax
-  ( Identifier, Expr(..), checkClosed ) where
+  ( Identifier, Expr(..), checkClosed, prettyExpr ) where
 
 type Identifier = String
 
--- | Fork binds its channel name only in the child expression.
+-- | Fork creates a fresh channel and passes it to the child process as a
+-- channel-parameter. In the paper, this often appears as fork c => P, i.e. a
+-- lambda-like abstraction over the fresh channel value.
 -- IfZero is an explicitly documented EOPL teaching extension to paper §8.
 data Expr
   = Val Int
@@ -18,7 +20,8 @@ data Expr
   | IfZero Expr Expr Expr
   | Send Expr Expr
   | Receive Expr
-  | Fork Identifier Expr
+  | NewChannel
+  | Fork Expr
   deriving (Eq, Show)
 
 -- | Optional lexical-scope check. Syntax remains unchanged.
@@ -39,4 +42,23 @@ checkClosed = check []
     check xs (IfZero tst th el) = check xs tst >> check xs th >> check xs el
     check xs (Send ch v) = check xs ch >> check xs v
     check xs (Receive ch) = check xs ch
-    check xs (Fork ch child) = check (ch:xs) child
+    check _ NewChannel = Right ()
+    check xs (Fork e) = check xs e
+
+prettyExpr :: Expr -> String
+prettyExpr (Val n) = show n
+prettyExpr (Add a b) = prettyExpr a ++ " + " ++ prettyExpr b
+prettyExpr (Var x) = x
+prettyExpr (Abs x body) = "λ" ++ x ++ "." ++ prettyExpr body
+prettyExpr (App f x) = prettyExpr f ++ " " ++ prettyExpr x
+prettyExpr (Let x rhs body) =
+  "let " ++ x ++ " = " ++ prettyExpr rhs ++ " in " ++ prettyExpr body
+prettyExpr (LetRec f x fbody body) =
+  "letrec " ++ f ++ " " ++ x ++ " = " ++ prettyExpr fbody ++ " in " ++ prettyExpr body
+prettyExpr (IfZero tst th el) =
+  "if0 " ++ prettyExpr tst ++ " then " ++ prettyExpr th ++ " else " ++ prettyExpr el
+prettyExpr (Send ch v) = "send " ++ prettyExpr ch ++ " " ++ prettyExpr v
+prettyExpr (Receive ch) = "receive " ++ prettyExpr ch
+prettyExpr NewChannel = "newChannel"
+prettyExpr (Fork (Abs x body)) = "fork (" ++ x ++ " => " ++ prettyExpr body ++ ")"
+prettyExpr (Fork e) = "fork (" ++ prettyExpr e ++ ")"

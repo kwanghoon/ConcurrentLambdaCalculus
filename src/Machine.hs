@@ -5,14 +5,14 @@ module Machine
 import Syntax
 import Eval (Value(..), Env(..))
 import CTree
-import Channel
+import Channel (ChanEff, send, receive, newChan, handleChannel)
 
 -- | Named-variable variant of Fig. 4; LETREC is the sole new instruction
 -- for recursion. The existing return frame and RET restore lexical scope.
 data Code
   = PUSH Int Code | ADD Code | ISNUM Code | LOOKUP Identifier Code
   | ABS Identifier Code Code | RET | ISCLO Code | APP Code
-  | SEND Code | RECEIVE Code | FORK Identifier Code Code | HALT
+  | SEND Code | RECEIVE Code | NEWCHANNEL Code | FORK Identifier Code Code | HALT
   | IFZERO Code Code
   | LETREC Identifier Identifier Code Code Code
   deriving (Eq, Show)
@@ -50,7 +50,9 @@ comp (LetRec f x fbody body) next =
 comp (IfZero tst th el) c = comp tst (IFZERO (comp th c) (comp el c))
 comp (Send x y) c = comp x (ISNUM (comp y (SEND c)))
 comp (Receive x) c = comp x (RECEIVE c)
-comp (Fork ch child) c = FORK ch (comp child HALT) c
+comp NewChannel c = NEWCHANNEL c
+comp (Fork (Abs ch child)) c = FORK ch (comp child HALT) c
+comp (Fork child) c = comp (App child (Val 0)) c
 
 applyEnvM :: EnvM -> Identifier -> CTreeC e ValueM
 applyEnvM EmptyEnvM _ = zeroC
@@ -80,6 +82,9 @@ exec (SEND c) (VAL (NumM n):VAL (NumM ch):s,e) = do
 exec (RECEIVE c) (VAL (NumM ch):s,e) = do
   n <- receive ch
   exec c (VAL (NumM n):s,e)
+exec (NEWCHANNEL c) (s,e) = do
+  ch <- newChan
+  exec c (VAL (NumM ch):s,e)
 exec (FORK x child parent) (s,e) = do
   ch <- newChan
   parRC (exec child ([],ExtendEnvM x (NumM ch) e))

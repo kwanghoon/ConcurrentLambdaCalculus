@@ -5,6 +5,7 @@ import Syntax
 import Runner
 import Machine (Code(..), comp)
 import Examples
+import Actor2Channel
 
 assert :: String -> Bool -> IO ()
 assert name ok = do
@@ -29,6 +30,7 @@ main = do
       (Let "f" (Abs "y" (Add (Var "x") (Var "y")))
         (Let "x" (Val 100) (App (Var "f") (Val 5)))))
   checkInt "fork returns fresh channel" 40 0 forkOnly
+  checkInt "fork twice relay chain" 100 13 threeWayRelay
   checkInt "rendezvous" 80 10 choiceRendezvous
   checkInt "bidirectional channel" 120 42 increment
   checkInt "EOPL LETREC sum" 200 10 sumTo
@@ -48,10 +50,23 @@ main = do
   assert "LETREC is a dedicated instruction" (case comp sumTo HALT of
     LETREC "sum" "n" _ _ HALT -> True
     _ -> False)
-  assert "fork child binder scope" (checkClosed (Fork "channel" (Receive (Var "channel"))) == Right ())
+  assert "fork child binder scope" (checkClosed (Fork (Abs "channel" (Receive (Var "channel")))) == Right ())
   assert "fork binder not in parent scope" (case checkClosed
-    (Let "z" (Fork "channel" (Val 1)) (Var "channel")) of
+    (Let "z" (Fork (Abs "channel" (Val 1))) (Var "channel")) of
     Left _ -> True
     _ -> False)
   assert "unbound identifier" (case checkClosed (Var "oops") of Left _ -> True; _ -> False)
+
+  -- Every actor example should produce a nonempty before/after translation pair,
+  -- and the translated program should remain closed.
+  mapM_ (\(name, (before, after)) ->
+    assert ("actor translation output for " ++ name)
+      (before /= "" && after /= "" && before /= after)) actorTranslationPairs
+
+  -- The translated programs should also satisfy the same closedness and round-trip
+  -- invariant as the original actor programs.
+  mapM_ (\(name, (src, tgt)) ->
+    assert ("actor translation validity for " ++ name)
+      (actorToChannel src == tgt && checkClosed tgt == Right ())) actorExampleTranslations
+
   putStrLn "All bounded tests passed (not a bisimilarity proof)."

@@ -9,6 +9,9 @@ library
   hs-source-dirs: src
   exposed-modules:
       Syntax
+      ActorSyntax
+      ActorExample
+      Actor2Channel
       CTree
       Channel
       Eval

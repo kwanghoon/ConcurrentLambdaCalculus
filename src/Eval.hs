@@ -3,7 +3,7 @@ module Eval
 
 import Syntax
 import CTree
-import Channel
+import Channel (ChanEff, send, receive, newChan, handleChannel)
 
 -- | EOPL's extended environment. A recursive binding stores the source
 -- function body, not a cyclic Haskell closure. Looking up f constructs a
@@ -57,9 +57,16 @@ eval (Receive x) env = do
   Num ch <- eval x env
   n <- receive ch
   pure (Num n)
-eval (Fork ch child) env = do
+eval NewChannel _ = do
+  channel <- newChan
+  pure (Num channel)
+eval (Fork (Abs ch child)) env = do
   channel <- newChan
   parRC (eval child (ExtendEnv ch (Num channel) env))
+        (pure (Num channel))
+eval (Fork child) env = do
+  channel <- newChan
+  parRC (eval (App child (Val channel)) env)
         (pure (Num channel))
 
 evaluate :: Expr -> CTreeC NoEff Value

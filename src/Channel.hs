@@ -1,6 +1,7 @@
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE PatternSynonyms #-}
 module Channel
-  ( Chan, ChanEff(..), send, receive, newChan, handleChannel ) where
+  ( Chan, ChanEff(..), pattern NewChannel, send, receive, newChan, handleChannel ) where
 
 import CTree
 
@@ -10,6 +11,9 @@ data ChanEff a where
   SendInt    :: Chan -> Int -> ChanEff ()
   ReceiveInt :: Chan -> ChanEff Int
   NewChan    :: ChanEff Chan
+
+pattern NewChannel :: ChanEff Chan
+pattern NewChannel = NewChan
 
 instance Concurrent ChanEff where
   interact (SendInt c n) (ReceiveInt d) | c == d = Later (Now ((), n))

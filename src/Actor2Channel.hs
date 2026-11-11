@@ -21,7 +21,7 @@ import Syntax (Expr(..), prettyExpr)
 -- and `self` itself becomes the mailbox variable bound in the actor's child body.
 actorToChannel :: ActorExpr -> Expr
 actorToChannel expr =
-  Let "self" (Fork (Abs "self" (Val 0))) (actorToChannelWith "self" expr)
+  Let "self" NewChannel (actorToChannelWith "self" expr)
 
 actorToChannelWith :: Identifier -> ActorExpr -> Expr
 actorToChannelWith _ (AVal n) = Val n
@@ -34,11 +34,15 @@ actorToChannelWith self (AAbs x body) =
 actorToChannelWith self (AApp f x) =
   App (actorToChannelWith self f) (actorToChannelWith self x)
 actorToChannelWith self (ALet x rhs body) =
-  Let x (actorToChannelWith self rhs) (actorToChannelWith self body)
+  Let x (actorToChannelWith self rhs) 
+    (actorToChannelWith self body)
 actorToChannelWith self (ALetRec f x fbody body) =
-  LetRec f x (actorToChannelWith self fbody) (actorToChannelWith self body)
+  LetRec f x (actorToChannelWith self fbody) 
+    (actorToChannelWith self body)
 actorToChannelWith self (AIfZero tst th el) =
-  IfZero (actorToChannelWith self tst) (actorToChannelWith self th) (actorToChannelWith self el)
+  IfZero (actorToChannelWith self tst) 
+    (actorToChannelWith self th) 
+    (actorToChannelWith self el)
 actorToChannelWith _ (ASpawn (AAbs x body)) =
   Fork (Abs x (actorToChannelWith x body))
 actorToChannelWith _ (ASpawn body) =
