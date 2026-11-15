@@ -8,11 +8,13 @@ import Machine
 import Runner
 import Examples
 import Actor2Channel
+import ConcurrencyExampleRun (main)
 
 main :: IO ()
 main = do
   args <- getArgs
   case args of
+    ["concurrency-example"] -> ConcurrencyExampleRun.main
     ["list"] -> mapM_ (putStrLn . fst) examples
     ["actor-list"] -> mapM_ (putStrLn . fst) actorExamples
     ["actor-translations"] -> printActorTranslations
@@ -24,7 +26,7 @@ main = do
     [name,f] -> case readMaybe f of
       Just fuel -> runExample name fuel
       Nothing -> putStrLn "Fuel must be an integer"
-    _ -> putStrLn "Usage: cabal run concurrent-letrec -- list | EXAMPLE [TAU-FUEL] | actor-list | actor-translations | actor EXAMPLE [TAU-FUEL]"
+    _ -> putStrLn "Usage: cabal run concurrent-letrec -- list | concurrency-example | EXAMPLE [TAU-FUEL] | actor-list | actor-translations | actor EXAMPLE [TAU-FUEL]"
 
 runExample :: String -> Int -> IO ()
 runExample name fuel = case lookup name examples of
