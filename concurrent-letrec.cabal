@@ -15,6 +15,7 @@ library
       CTree
       Channel
       Eval
+      EvalActor
       Machine
       Runner
       Examples

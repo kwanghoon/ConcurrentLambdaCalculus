@@ -4,10 +4,12 @@ import System.Environment (getArgs)
 import Text.Read (readMaybe)
 import Syntax
 import Eval
+import qualified EvalActor
 import Machine
 import Runner
 import Examples
 import Actor2Channel
+import CTree
 import ConcurrencyExampleRun (main)
 
 main :: IO ()
@@ -22,11 +24,15 @@ main = do
     ["actor", name, f] -> case readMaybe f of
       Just fuel -> runActorExample name fuel
       Nothing -> putStrLn "Fuel must be an integer"
+    ["actor-eval", name] -> runActorExampleWithEvalActor name 100
+    ["actor-eval", name, f] -> case readMaybe f of
+      Just fuel -> runActorExampleWithEvalActor name fuel
+      Nothing -> putStrLn "Fuel must be an integer"
     [name] -> runExample name 100
     [name,f] -> case readMaybe f of
       Just fuel -> runExample name fuel
       Nothing -> putStrLn "Fuel must be an integer"
-    _ -> putStrLn "Usage: cabal run concurrent-letrec -- list | concurrency-example | EXAMPLE [TAU-FUEL] | actor-list | actor-translations | actor EXAMPLE [TAU-FUEL]"
+    _ -> putStrLn "Usage: cabal run concurrent-letrec -- list | concurrency-example | EXAMPLE [TAU-FUEL] | actor-list | actor-translations | actor EXAMPLE [TAU-FUEL] | actor-eval EXAMPLE [TAU-FUEL]"
 
 runExample :: String -> Int -> IO ()
 runExample name fuel = case lookup name examples of
@@ -54,6 +60,17 @@ runActorExample name fuel = case lookup name actorExamples of
       putStrLn ("Compiled code: " ++ show (compile (actorToChannel expr)))
       putStrLn ("Source outcomes: " ++ show (map summarizeSource (sourceOutcomes fuel (actorToChannel expr))))
 
+runActorExampleWithEvalActor :: String -> Int -> IO ()
+runActorExampleWithEvalActor name fuel = case lookup name actorExamples of
+  Nothing -> putStrLn ("Unknown actor example: " ++ name ++ "; use actor-list")
+  Just expr -> do
+      putStrLn ("=== actor-eval " ++ name ++ " ===")
+      putStrLn ("Actor expr: " ++ prettyActorProgram expr)
+      let allOutcomes = explore fuel (lower (EvalActor.evaluateActor expr))
+          outcomes = filter (/= Stuck) allOutcomes
+      putStrLn ("All outcomes: " ++ show (map summarizeEvalActorOutcome allOutcomes))
+      putStrLn ("EvalActor outcomes (non-stuck): " ++ show (map summarizeEvalActorOutcome outcomes))
+
 printActorTranslations :: IO ()
 printActorTranslations =
   mapM_ (\(name, (before, after)) -> do
@@ -66,6 +83,12 @@ summarizeSource (Done (Num n)) = "Num " ++ show n
 summarizeSource (Done (Clo _ _ _)) = "<closure>"
 summarizeSource Stuck = "stuck"
 summarizeSource Timeout = "timeout"
+
+summarizeEvalActorOutcome :: Outcome EvalActor.Value -> String
+summarizeEvalActorOutcome (Done (EvalActor.Num n)) = "Num " ++ show n
+summarizeEvalActorOutcome (Done (EvalActor.Clo _ _ _)) = "<closure>"
+summarizeEvalActorOutcome Stuck = "stuck"
+summarizeEvalActorOutcome Timeout = "timeout"
 
 summarizeMachine :: Outcome Conf -> String
 summarizeMachine (Done c) = case valueOf c of
