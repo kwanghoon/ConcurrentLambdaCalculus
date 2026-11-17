@@ -69,4 +69,7 @@ main = do
     assert ("actor translation validity for " ++ name)
       (actorToChannel src == tgt && checkClosed tgt == Right ())) actorExampleTranslations
 
+  assert "two clients send 1 then 2 to server"
+    (sourceInts 200 (actorToChannel actorTwoClients) == [4])
+
   putStrLn "All bounded tests passed (not a bisimilarity proof)."

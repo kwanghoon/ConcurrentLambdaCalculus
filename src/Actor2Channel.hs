@@ -3,9 +3,10 @@ module Actor2Channel
   , actorTranslationPair, actorTranslationPairs
   , prettyActorProgram, prettyChannelProgram
   , evaluateActor, actorExamples, actorExampleTranslations
-  , actorIncrement, actorRendezvous, actorRelay, actorPing, actorEcho ) where
+  , actorIncrement, actorRendezvous, actorRelay, actorPing, actorEcho
+  , actorTwoClients ) where
 
-import ActorExample (actorEcho, actorExamples, actorIncrement, actorPing, actorRelay, actorRendezvous)
+import ActorExample (actorEcho, actorExamples, actorIncrement, actorPing, actorRelay, actorRendezvous, actorTwoClients)
 import ActorSyntax
 import CTree (CTreeC, NoEff)
 import Eval (Value, evaluate)

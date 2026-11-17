@@ -61,7 +61,12 @@ cabal run concurrent-letrec -- actor increment 100
 cabal run concurrent-letrec -- actor-eval increment 100
 ```
 
-Examples: `increment`, `rendezvous`, `relay`, `echo`, `ping`, `three-way-relay`.
+Examples: `increment`, `rendezvous`, `relay`, `echo`, `ping`,
+`three-way-relay`, `two-clients`.
+
+`two-clients` spawns client1 and client2. The server sends its address to both,
+receives 1 from client1, then signals client2 to send 2. Its result is 4
+(`1 + 1 + 2`), making the message order observable.
 
 - `actor NAME [FUEL]` translates the actor program to the channel calculus,
   prints both forms and the compiled code, and runs the translated program

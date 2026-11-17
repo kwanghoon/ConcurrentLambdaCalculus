@@ -1,6 +1,6 @@
 module ActorExample
   ( ActorExpr(..), actorIncrement, actorRendezvous, actorRelay, actorPing, actorEcho
-  , actorThreeWayRelay, actorExamples ) where
+  , actorThreeWayRelay, actorTwoClients, actorExamples ) where
 
 import ActorSyntax
 
@@ -85,6 +85,25 @@ actorThreeWayRelay =
          (ALet "_" (ASend (AVar "a") (AVal 7))
            AReceive))
 
+-- The server gives both clients its address. Client2 waits for a signal from
+-- the server so that its message follows client1's message.
+actorTwoClients :: ActorExpr
+actorTwoClients =
+  let client1 =
+        ALet "server" AReceive
+          (ASend (AVar "server") (AVal 1))
+      client2 =
+        ALet "server" AReceive
+            (ASend (AVar "server") (AVal 2))
+      server =
+        ALet "_" (ASend (AVar "client1") ASelf)
+          (ALet "_" (ASend (AVar "client2") ASelf)
+            (ALet "first" AReceive
+              (ALet "second" AReceive
+                (AAdd (AVar "first") (AVar "second")))))
+  in ALet "client1" (ASpawn client1)
+       (ALet "client2" (ASpawn client2) server)
+
 actorExamples :: [(String, ActorExpr)]
 actorExamples =
   [ ("increment", actorIncrement)
@@ -93,4 +112,5 @@ actorExamples =
   , ("echo", actorEcho)
   , ("ping", actorPing)
   , ("three-way-relay", actorThreeWayRelay)
+  , ("two-clients", actorTwoClients)
   ]
